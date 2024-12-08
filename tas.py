@@ -1,6 +1,6 @@
 # MIT License
 #
-# Copyright (c) 2024 thatsOven, Bryan Allaire
+# Copyright (c) 2024 Amari Calipso, Bryan Allaire
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -81,8 +81,8 @@ class TAS:
     }
 
     DAY3_PICTURE_CHECK: ClassVar[bool] = False
-    DAY4_PICTURE_CHECK: ClassVar[bool] = True 
-    ID_CHECK: ClassVar[bool]           = True 
+    DAY4_PICTURE_CHECK: ClassVar[bool] = True
+    ID_CHECK: ClassVar[bool]           = True
 
     # this is *really* slow, and wanted criminals don't happen that often,
     # so i'm keeping this off. it's not fully tested so enable at your own risk
@@ -177,7 +177,7 @@ class TAS:
         self.skipReason = False
 
         # TODO this system needs further testing but in the AllEndings run
-        # this can only happen in days 25 and 27, and has an approximately 
+        # this can only happen in days 25 and 27, and has an approximately
         # 0.6% chance of happening with every entrant
         self.needId  = False
         self.newData = True
@@ -200,7 +200,7 @@ class TAS:
         self.wanted = []
 
         self.currRun = None
-        
+
         self.frames        = Frames()
         self.person        = Person()
         self.documentStack = DocumentStack(self)
@@ -270,19 +270,19 @@ class TAS:
 
         sealsPath = os.path.join(TAS.ASSETS, "sealsMOA")
         TAS.MOA_SEALS = tuple(
-            Image.open(os.path.join(sealsPath, file)).convert("RGB") 
+            Image.open(os.path.join(sealsPath, file)).convert("RGB")
             for file in os.listdir(sealsPath)
         )
 
         buttonsPath = os.path.join(TAS.ASSETS, "buttons")
         TAS.BUTTONS = {
-            file.split(".")[0]: Image.open(os.path.join(buttonsPath, file)).convert("RGB") 
+            file.split(".")[0]: Image.open(os.path.join(buttonsPath, file)).convert("RGB")
             for file in os.listdir(buttonsPath)
         }
 
         ticksPath = os.path.join(TAS.ASSETS, "ticks")
         TAS.TICKS = {
-            file.split(".")[0]: Image.open(os.path.join(ticksPath, file)).convert("RGB") 
+            file.split(".")[0]: Image.open(os.path.join(ticksPath, file)).convert("RGB")
             for file in os.listdir(ticksPath)
         }
 
@@ -296,11 +296,11 @@ class TAS:
         ).convert("RGB"))
 
         TAS.FONTS = {
-            "bm-mini": ImageFont.truetype( 
-                os.path.join(TAS.ASSETS, "fonts", "BMmini.TTF"), 
+            "bm-mini": ImageFont.truetype(
+                os.path.join(TAS.ASSETS, "fonts", "BMmini.TTF"),
                 size = 16
             ),
-            "mini-kylie": ImageFont.truetype( 
+            "mini-kylie": ImageFont.truetype(
                 os.path.join(TAS.ASSETS, "fonts", "MiniKylie.ttf"),
                 size = 16
             ),
@@ -461,7 +461,7 @@ class TAS:
         Face.load()
         logger.info("Initializing Transcription...")
         Transcription.load()
-    
+
         for DocumentSubclass in TAS.DOCUMENTS:
             logger.info(f"Initializing {DocumentSubclass.__name__}...")
             DocumentSubclass.TAS = TAS
@@ -497,9 +497,9 @@ class TAS:
             for h, t, in winList:
                 if t in WINDOW_TITLES:
                     return h
-                
+
             raise TASException('No "Papers Please" window was found')
-        
+
         def getScreen(self) -> Image.Image:
             """Get a screenshot of the window in its current state.
 
@@ -507,16 +507,16 @@ class TAS:
                 Screenshot of the window as an Image in RGB format.
             """
             return ImageGrab.grab(win32gui.GetWindowRect(self.hwnd)).convert("RGB")
-        
+
         def mouseOffset(self, x: int, y: int) -> tuple[int, int]:
             """Converts point from window coordinates to screen coordinates."""
             bX, bY, _, _ = win32gui.GetWindowRect(self.hwnd)
-            return (bX + x, bY + y)       
+            return (bX + x, bY + y)
     else:
         @staticmethod
         def getWinHWND() -> str:
             raise NotImplementedError
-        
+
         def getScreen(self) -> Image.Image:
             """Get a screenshot of the window in its current state.
 
@@ -524,7 +524,7 @@ class TAS:
                 Screenshot of the window as an Image in RGB format.
             """
             return ImageGrab.grab(self.winPos + offsetPoint(WINDOW_SIZE, self.winPos)).convert("RGB")
-        
+
         def mouseOffset(self, x: int, y: int) -> tuple[int, int]:
             """Converts point from window coordinates to screen coordinates."""
             return offsetPoint((x, y), self.winPos)
@@ -564,7 +564,7 @@ class TAS:
                 if pg.locate(TAS.GIVE_BANNER, screen.crop(PERSON_AREA), confidence = 0.5) is not None: break
 
                 # needed in some edge cases so it doesn't get stuck
-                if self.checkDayEnd and pg.locate(TAS.BUTTONS["sleep"], screen) is not None: break 
+                if self.checkDayEnd and pg.locate(TAS.BUTTONS["sleep"], screen) is not None: break
 
                 pos[0] = at[0] + math.sin(th[0]) * DRAG_TO_WITH_GIVE_AMPLITUDE[0] - DRAG_TO_WITH_GIVE_POS_OFFS[0]
                 pos[1] = at[1] + math.sin(th[1]) * DRAG_TO_WITH_GIVE_AMPLITUDE[1] - DRAG_TO_WITH_GIVE_POS_OFFS[1]
@@ -634,7 +634,7 @@ class TAS:
         if not self.shutter:
             self.shutter = True
             self.click(SHUTTER_LEVER)
-        
+
         if wait:
             time.sleep(SHUTTER_OPEN_TIME)
 
@@ -666,8 +666,8 @@ class TAS:
                 self.goToWantedCriminals()
                 self.moveTo(INITIAL_BULLETIN_POS)
                 self.dragTo(RIGHT_BULLETIN_POS)
-                self.wanted = list(WANTED) 
-            
+                self.wanted = list(WANTED)
+
             self.click(HORN)
             self.openShutter(wait = False) # make sure shutter is open so you can quickly detect first person
             self.moveTo(HORN) # move cursor away so face recognition doesn't get confused
@@ -678,7 +678,7 @@ class TAS:
                 screen = self.getScreen()
 
                 if np.array_equal(TAS.NEXT_BUBBLE, np.asarray(screen.crop(NEXT_BUBBLE_AREA))): break
-                if self.checkDayEnd and pg.locate(TAS.BUTTONS["sleep"], screen) is not None: return False 
+                if self.checkDayEnd and pg.locate(TAS.BUTTONS["sleep"], screen) is not None: return False
 
         # wait for person to appear (if the palette is detected, the person is there)
         while True:
@@ -686,14 +686,14 @@ class TAS:
             appearance = screen.crop(PERSON_AREA)
 
             if Face.getPalette(appearance) is not None: break
-            if self.checkDayEnd and pg.locate(TAS.BUTTONS["sleep"], screen) is not None: return False 
+            if self.checkDayEnd and pg.locate(TAS.BUTTONS["sleep"], screen) is not None: return False
 
         self.documentStack.reset()
         self.transcription.reset()
-        
+
         self.person.reset(appearance)
 
-        if TAS.SETTINGS["debug"]: 
+        if TAS.SETTINGS["debug"]:
             # cool trick to get caller function name without the code being implementation-dependent
             try: raise Exception
             except Exception:
@@ -730,16 +730,16 @@ class TAS:
                 DIGITS, checkFn = digitCheck, lenFn = digitLength
             )
 
-            if weightCheck == "": 
+            if weightCheck == "":
                 self.waitForSleepButton()
                 return True
-            
+
             self.person.weight = int(weightCheck)
             self.wrongWeight = False
 
-            if TAS.SETTINGS["debug"]: logger.info(self.person) 
+            if TAS.SETTINGS["debug"]: logger.info(self.person)
             return False
-        
+
         return True
 
     # menu utilities
@@ -1006,7 +1006,7 @@ class TAS:
                 time.sleep(0.5)
                 self.click(pos)
 
-                # shutter gets closed when you detain, so this ensures it stays open 
+                # shutter gets closed when you detain, so this ensures it stays open
                 # for the next entrant for quicker detection
                 self.shutter = False
                 self.openShutter(wait = False)
@@ -1032,7 +1032,7 @@ class TAS:
         time.sleep(STAMP_OPEN_TIME)
         self.click(STAMP_APPROVE)
 
-        if close: 
+        if close:
             time.sleep(0.25)
             self.click(STAMP_DISABLE)
             if waitClose: time.sleep(STAMP_CLOSE_TIME)
@@ -1057,7 +1057,7 @@ class TAS:
         time.sleep(STAMP_OPEN_TIME)
         self.click(STAMP_DENY)
 
-        if close: 
+        if close:
             time.sleep(0.25)
             self.click(STAMP_DISABLE)
             if waitClose: time.sleep(STAMP_CLOSE_TIME)
@@ -1096,13 +1096,13 @@ class TAS:
         """
         if nextCheck:
             if self.next(): return False
-        
+
         self.moveTo(PAPER_POS)
         self.dragTo(PASSPORT_DENY_POS)
         self.denyAndGive()
 
         return True
-    
+
     I = 0 # TODO
 
     def docScan(self, *, move: bool = True) -> Document | Passport | None:
@@ -1132,7 +1132,7 @@ class TAS:
 
                 if TAS.SETTINGS["debug"]: logger.info(doc)
                 return doc
-            
+
         if self.poison:
             self.poison = False
 
@@ -1167,7 +1167,7 @@ class TAS:
 
         if TAS.SETTINGS["debug"]: logger.info(passport)
         return passport
-    
+
     def fastPassportScan(self, before: np.ndarray, after: np.ndarray) -> Nation:
         papers = np.asarray(bgFilter(before, after))
         gray   = rgb2gray(papers)
@@ -1187,15 +1187,15 @@ class TAS:
 
     def interrogate(self) -> None:
         self.click(INTERROGATE_BUTTON)
-        time.sleep(0.35) # otherwise it doesn't rly work 
+        time.sleep(0.35) # otherwise it doesn't rly work
 
     def getRulebook(self) -> dict[str, dict | tuple[int, int]]:
         if self.date < TAS.DAY_27:
             return RULEBOOK
         return RULEBOOK_DAY_27
-    
+
     def interrogateFailsafe(self) -> bool:
-        # we allow if we hit the failsafe in final check. 
+        # we allow if we hit the failsafe in final check.
         # might get citations, but whatever, it doesn't really happen.
         # it's just here to avoid problems
 
@@ -1208,7 +1208,7 @@ class TAS:
             pg.locate(TAS.MATCHING_DATA,  msg, confidence = 0.6) is None and
             pg.locate(TAS.NO_CORRELATION, msg, confidence = 0.6) is None
         ): return False
-        
+
         self.click(INSPECT_BUTTON)
         return True
 
@@ -1237,14 +1237,14 @@ class TAS:
         self.dragTo(RULEBOOK_POS)
 
     def giveAllGiveAreaDocs(self, before: np.ndarray, *, delay: bool = False) -> None:
-        while True: 
+        while True:
             screen = self.getScreen()
 
             if np.array_equal(before, np.asarray(screen.crop(GIVE_AREA))): break
 
             # needed in some edge cases so it doesn't get stuck
-            if self.checkDayEnd and pg.locate(TAS.BUTTONS["sleep"], screen) is not None: break 
-            
+            if self.checkDayEnd and pg.locate(TAS.BUTTONS["sleep"], screen) is not None: break
+
             self.moveTo(PAPER_POS)
             self.dragTo(PERSON_POS)
             if delay: time.sleep(0.5)
@@ -1260,19 +1260,19 @@ class TAS:
         self.dragTo(PASSPORT_REASON_POS)
         self.click(REASON_STAMP)
 
-        if close: 
+        if close:
             time.sleep(0.25)
             self.click(STAMP_DISABLE)
             if waitClose: time.sleep(STAMP_CLOSE_TIME)
 
         self.moveTo(PASSPORT_REASON_POS)
-        self.dragToWithGive(PERSON_PASSPORT_POS)   
+        self.dragToWithGive(PERSON_PASSPORT_POS)
 
     def passportCheck(self, before: np.ndarray, befCheck: bool, denyWhen: Callable[[Passport], bool]) -> bool:
         if denyWhen(self.documentStack.passport):
             cond = befCheck and not np.array_equal(before, np.asarray(self.getScreen().crop(GIVE_AREA)))
 
-            # speedrun strategy - weight discrepancy: if we get a weight discrepancy after 
+            # speedrun strategy - weight discrepancy: if we get a weight discrepancy after
             # a specific entrant, on some days, bombers are randomly generated and can end day early
             if self.allowWrongWeight and self.wrongWeight:
                 self.allowAndGive(
@@ -1293,7 +1293,7 @@ class TAS:
                 )
 
             t = time.time()
-            if cond: 
+            if cond:
                 self.giveAllGiveAreaDocs(before)
                 if self.documentStack.mulDocs():
                     t = STAMP_CLOSE_TIME - (time.time() - t)
@@ -1302,12 +1302,12 @@ class TAS:
             if self.documentStack.mulDocs(): self.giveAllDocs()
             return True
         return False
-    
+
     def multiDocNoPassport(self, denyWhen: Callable[[Passport], bool], forceAllow: bool = False) -> bool:
         if self.documentStack.passport is None:
             before = np.asarray(self.getScreen().crop(GIVE_AREA))
             self.noPassport()
-            
+
             while True:
                 screen = self.getScreen()
                 if not np.array_equal(before, np.asarray(screen.crop(GIVE_AREA))): break
@@ -1315,16 +1315,16 @@ class TAS:
                 if pg.locate(TAS.VISA_SLIP, screen, confidence = 0.9) is not None:
                     time.sleep(0.25)
 
-                    if not forceAllow: 
+                    if not forceAllow:
                         self.moveTo(onTable(centerOf(VISA_SLIP_AREA)))
                         self.dragTo(VISA_SLIP_DENY_POS)
-                    
+
                     self.click(STAMP_ENABLE)
                     time.sleep(STAMP_OPEN_TIME)
 
-                    if forceAllow: 
+                    if forceAllow:
                         self.click(STAMP_APPROVE)
-                    else:          
+                    else:
                         self.click(STAMP_DENY)
 
                         if self.date >= TAS.DAY_18 and not self.skipReason:
@@ -1362,7 +1362,7 @@ class TAS:
             if self.passportCheck(before, False, denyWhen):
                 return True
         return False
-    
+
     def checkDiscrepancies(self, doc: Document | Passport) -> bool:
         return getattr(self.currRun, f"check{type(doc).__name__}Discrepancies")(doc)
 
@@ -1372,7 +1372,7 @@ class TAS:
         else:
             self.documentStack.reset()
             self.transcription.reset()
-            
+
         discrepancy = False
         while True:
             self.moveTo(PAPER_POS)
@@ -1385,7 +1385,7 @@ class TAS:
                 if self.needId:
                     discrepancy |= self.checkDiscrepancies(doc)
                 elif self.passportCheck(
-                    self.lastGiveArea, True, 
+                    self.lastGiveArea, True,
                     lambda x: discrepancy or self.checkDiscrepancies(x)
                 ): return False, True
 
@@ -1403,18 +1403,18 @@ class TAS:
                         self.moveTo(SLOTS[0])
 
                         # check "speedrun strategy - weight discrepancy"
-                        if self.allowWrongWeight and self.wrongWeight: 
+                        if self.allowWrongWeight and self.wrongWeight:
                             self.dragTo(PASSPORT_ALLOW_POS)
                             self.allowAndGive(close = True, waitClose = False)
-                        else:     
+                        else:
                             self.dragTo(PASSPORT_DENY_POS)
 
-                            if self.date >= TAS.DAY_18 and not self.skipReason: 
+                            if self.date >= TAS.DAY_18 and not self.skipReason:
                                 self.denyAndGiveWithReason(close = True, waitClose = False)
-                            else: 
+                            else:
                                 self.skipReason = False
                                 self.denyAndGive(close = True, waitClose = False)
-                            
+
                         t = time.time()
                         self.giveAllGiveAreaDocs(self.lastGiveArea)
                         t = STAMP_CLOSE_TIME - (time.time() - t)
@@ -1430,16 +1430,16 @@ class TAS:
 
         self.needId = False
         return False, self.multiDocNoPassport(
-            lambda x: discrepancy or self.checkDiscrepancies(x), 
+            lambda x: discrepancy or self.checkDiscrepancies(x),
         )
-    
+
     def noConfiscate(self, fn: Callable):
         tmp = self.doConfiscate
         self.doConfiscate = False
         res = fn()
         self.doConfiscate = tmp
         return res
-    
+
     def multiDocAction(self, allow: bool, *, nextCheck: bool = True, force: bool = False) -> bool:
         if nextCheck:
             if self.next(): return True
@@ -1457,25 +1457,25 @@ class TAS:
                 else:
                     self.denyAndGive(close = self.documentStack.mulDocs())
 
-                if not np.array_equal(self.lastGiveArea, np.asarray(self.getScreen().crop(GIVE_AREA))): 
+                if not np.array_equal(self.lastGiveArea, np.asarray(self.getScreen().crop(GIVE_AREA))):
                     self.giveAllGiveAreaDocs(self.lastGiveArea)
 
                 if self.documentStack.mulDocs(): self.giveAllDocs()
                 return False
-            
+
             self.documentStack.push(doc)
 
             if np.array_equal(self.lastGiveArea, np.asarray(self.getScreen().crop(GIVE_AREA))): break
-        
+
         if self.multiDocNoPassport(lambda _: not allow, forceAllow = force and allow): return
-        
+
         self.dragTo(PASSPORT_ALLOW_POS)
         self.allowAndGive(close = self.documentStack.mulDocs())
-        if not np.array_equal(self.lastGiveArea, np.asarray(self.getScreen().crop(GIVE_AREA))): 
+        if not np.array_equal(self.lastGiveArea, np.asarray(self.getScreen().crop(GIVE_AREA))):
             self.giveAllGiveAreaDocs(self.lastGiveArea)
         if self.documentStack.mulDocs(): self.giveAllDocs()
         return False
-    
+
     def giveAllDocs(self) -> None:
         while self.documentStack.pop() is not None: pass
         self.documentStack.reset()
@@ -1567,7 +1567,7 @@ class TAS:
                 self.documentStack.moved = True
                 self.moveTo(PAPER_SCAN_POS)
                 self.dragTo(SLOTS[0])
-            
+
             if self.transcription.waitFor(lambda: self.transcription.getMissingDocGiven(Type_.__name__)):
                 logger.info("missing document is available")
                 self.waitForGiveAreaChange(update = False)
@@ -1577,12 +1577,12 @@ class TAS:
                 discrepancy = self.checkDiscrepancies(doc)
                 self.moveTo(PAPER_SCAN_POS)
                 self.documentStack.push(doc)
-                if not discrepancy: 
+                if not discrepancy:
                     self.lastGiveArea = tmp
                     return False
-            
+
             self.lastGiveArea = tmp
-                
+
         if self.documentStack.moved:
             self.moveTo(SLOTS[0])
             self.dragTo(PASSPORT_DENY_POS)
@@ -1623,16 +1623,16 @@ class TAS:
         ys, xs = np.where((np.asarray(self.getScreen().crop(area)) == color).all(axis = -1))
         if tranq:
             return (
-                offsetPoint((xs[0           ], ys[0           ]), area[:2]), 
-                offsetPoint((xs[len(xs) // 2], ys[len(ys) // 2]), area[:2]), 
+                offsetPoint((xs[0           ], ys[0           ]), area[:2]),
+                offsetPoint((xs[len(xs) // 2], ys[len(ys) // 2]), area[:2]),
                 offsetPoint((xs[-1          ], ys[-1          ]), area[:2])
             )
         else:
             return (
-                offsetPoint((xs[ 0], ys[ 0]), area[:2]), 
+                offsetPoint((xs[ 0], ys[ 0]), area[:2]),
                 offsetPoint((xs[-1], ys[-1]), area[:2])
             )
-        
+
     def day15Bomb(self) -> None:
         # bomb on desk
         self.next()
@@ -1652,7 +1652,7 @@ class TAS:
             # try to cut first wire
             self.click((735, 440))
             self.moveTo(TABLE_AREA[:2])
-        # when cutting first wire succeeds, wires is no longer located, 
+        # when cutting first wire succeeds, wires is no longer located,
         # so it falls here and cuts all other wires
         self.click((688, 440))
         self.click((816, 440))
@@ -1664,7 +1664,7 @@ class TAS:
     # document handling
     def handleNoDocs(self) -> bool:
         if len(self.documentStack) == 0:
-            if self.documentStack.moved: 
+            if self.documentStack.moved:
                 self.moveTo(SLOTS[0])
                 self.dragTo(PASSPORT_DENY_POS)
 
@@ -1686,27 +1686,27 @@ class TAS:
             else:
                 self.dragTo(PASSPORT_ALLOW_POS)
                 self.allowAndGive(close = True)
-            
+
             self.giveAllDocs()
             return True
         return False
-    
+
     def handleEntryPermit(self) -> bool:
         entryPermit: EntryPermit = self.documentStack.get(EntryPermit)
 
         if entryPermit is None or (
             entryPermit.name   != self.documentStack.passport.name   or
-            entryPermit.number != self.documentStack.passport.number        
+            entryPermit.number != self.documentStack.passport.number
         ):
             if self.documentStack.moved:
-                self.moveTo(SLOTS[0]) 
+                self.moveTo(SLOTS[0])
                 self.dragTo(PASSPORT_DENY_POS)
 
             self.denyAndGive(close = True)
             self.giveAllDocs()
             return True
         return False
-    
+
     def handlePurposeDuration(self) -> bool:
         entryPermit: EntryPermit = self.documentStack.get(EntryPermit)
 
@@ -1723,7 +1723,7 @@ class TAS:
             self.giveAllDocs()
             return True
         return False
-    
+
     def handleWorkPass(self) -> bool:
         entryPermit: EntryPermit = self.documentStack.get(EntryPermit)
 
@@ -1735,7 +1735,7 @@ class TAS:
                 workPass.until < self.date + entryPermit.duration
             ):
                 if self.documentStack.moved:
-                    self.moveTo(SLOTS[0]) 
+                    self.moveTo(SLOTS[0])
                     self.dragTo(PASSPORT_DENY_POS)
 
                 self.denyAndGive(close = True)
@@ -1760,27 +1760,27 @@ class TAS:
             self.allowAndGive(close = True)
         self.giveAllDocs()
         return True
-    
+
     def handleIdSuppl(self) -> bool:
         idSupplement: IDSupplement = self.documentStack.get(IDSupplement)
 
         if idSupplement is None:
             if self.documentStack.moved:
-                self.moveTo(SLOTS[0]) 
+                self.moveTo(SLOTS[0])
                 self.dragTo(PASSPORT_DENY_POS)
 
             self.denyAndGive(close = True)
             self.giveAllDocs()
             return True
         return False
-    
+
     def handleArstotzkanIdWithReason(self) -> bool:
         if self.documentStack.passport.type_.nation == Nation.ARSTOTZKA:
             arstotzkanId: ArstotzkanID = self.documentStack.get(ArstotzkanID)
 
             if arstotzkanId is None and self.missingDoc("citizens-must-have-id", ArstotzkanID):
                 return True
-            
+
             arstotzkanId    = self.documentStack.get(ArstotzkanID)
             arstotzkanIdPos = self.documentStack.getSlot(ArstotzkanID)
 
@@ -1809,7 +1809,7 @@ class TAS:
                 self.giveAllDocs()
 
             return True
-        
+
     def handleDiplomaticAuthWithReason(self) -> bool:
         diplomaticAuth: DiplomaticAuth = self.documentStack.get(DiplomaticAuth)
         if diplomaticAuth is None: return False
@@ -1843,13 +1843,13 @@ class TAS:
             self.allowAndGive(close = True)
         self.giveAllDocs()
         return True
-    
+
     def handleEntryPermitWithReason(self) -> bool:
         entryPermit: EntryPermit = self.documentStack.get(EntryPermit)
 
         if entryPermit is None and self.missingDoc("foreigners-require-entry-permit", EntryPermit):
             return True
-        
+
         entryPermit    = self.documentStack.get(EntryPermit)
         entryPermitPos = self.documentStack.getSlot(EntryPermit)
 
@@ -1873,7 +1873,7 @@ class TAS:
             self.giveAllDocs()
             return True
         return False
-        
+
     def handleWorkPassWithReason(self, PermitType: type) -> bool:
         permit: EntryPermit | AccessPermit = self.documentStack.get(PermitType)
 
@@ -1882,7 +1882,7 @@ class TAS:
 
             if workPass is None and self.missingDoc("workers-must-have-workpass", WorkPass):
                 return True
-            
+
             workPass    = self.documentStack.get(WorkPass)
             workPassPos = self.documentStack.getSlot(WorkPass)
 
@@ -1924,7 +1924,7 @@ class TAS:
                     self.moveTo(PAPER_SCAN_POS)
                     self.dragTo(SLOTS[workPassPos])
 
-                    if self.documentStack.moved: 
+                    if self.documentStack.moved:
                         self.moveTo(SLOTS[0])
                         self.dragTo(PASSPORT_DENY_POS)
 
@@ -1932,14 +1932,14 @@ class TAS:
                 self.giveAllDocs()
                 return True
         return False
-    
+
     def handleIdSupplWithReason(self) -> bool:
         idSupplement: IDSupplement = self.documentStack.get(IDSupplement)
 
         if idSupplement is None and self.missingDoc("foreigners-require-idsuppl", IDSupplement):
             return True
         return False
-    
+
     def handlePurposeDurationWithReason(self, PermitType: Type[EntryPermit | AccessPermit], alignFn: Callable[[tuple[int, int, int, int]], tuple[int, int]]) -> bool:
         duration = self.transcription.waitFor(self.transcription.getDuration)
         purpose  = self.transcription.getPurpose()
@@ -1980,22 +1980,22 @@ class TAS:
             self.moveTo(RIGHT_SCAN_SLOT)
             self.dragTo(SLOTS[permitPos])
 
-        if self.documentStack.moved: 
+        if self.documentStack.moved:
             self.moveTo(SLOTS[0])
         else:
-            self.moveTo(PAPER_SCAN_POS)    
+            self.moveTo(PAPER_SCAN_POS)
 
         self.dragTo(PASSPORT_ALLOW_POS)
         self.allowAndGive(close = True) # entrants always correct themselves on wrong purposes or durations
         self.giveAllDocs()
         return True
-    
+
     def handleGrantOfAsylumWithReason(self) -> bool:
         grantOfAsylum: GrantOfAsylum = self.documentStack.get(GrantOfAsylum)
 
         if grantOfAsylum is None and self.missingDoc("asylum-seekers-need-grant", GrantOfAsylum):
             return True
-        
+
         grantOfAsylum    = self.documentStack.get(GrantOfAsylum)
         grantOfAsylumPos = self.documentStack.getSlot(GrantOfAsylum)
 
@@ -2060,13 +2060,13 @@ class TAS:
             self.giveAllDocs()
             return True
         return False
-    
+
     def handleAccessPermitWithReason(self) -> bool:
         accessPermit: AccessPermit = self.documentStack.get(AccessPermit)
 
-        if accessPermit is None and self.missingDoc("foreigners-require-access-permit", AccessPermit): 
+        if accessPermit is None and self.missingDoc("foreigners-require-access-permit", AccessPermit):
             return True
-        
+
         accessPermit    = self.documentStack.get(AccessPermit)
         accessPermitPos = self.documentStack.getSlot(AccessPermit)
 
@@ -2094,13 +2094,13 @@ class TAS:
             self.giveAllDocs()
             return True
         return False
-    
+
     def endAllow(self) -> None:
-        if self.documentStack.moved: self.moveTo(SLOTS[0])         
+        if self.documentStack.moved: self.moveTo(SLOTS[0])
         self.dragTo(PASSPORT_ALLOW_POS)
         self.allowAndGive(close = True)
         self.giveAllDocs()
-    
+
     # checks
     def day1Check(self) -> bool:
         if self.next(): return False
@@ -2122,7 +2122,7 @@ class TAS:
             self.denyAndGive()
 
         return True
-    
+
     def day2Check(self, *, wrong: bool) -> bool:
         if self.next(): return False
         passport: Passport = self.docScan()
@@ -2135,9 +2135,9 @@ class TAS:
             self.allowAndGive()
         else:
             self.denyAndGive()
-            
+
         return True
-    
+
     def day3Check(self) -> bool:
         nextRet, done = self.getAllDocs()
         if nextRet: return False
@@ -2152,7 +2152,7 @@ class TAS:
             self.denyAndGive(close = True)
         self.giveAllDocs()
         return True
-    
+
     def day4Check(self) -> bool:
         nextRet, done = self.getAllDocs()
         if nextRet: return False
@@ -2160,12 +2160,12 @@ class TAS:
 
         if self.handleNoDocs():          return True
         if self.handleArstotzkanId():    return True
-        if self.handleEntryPermit():     return True  
+        if self.handleEntryPermit():     return True
         if self.handlePurposeDuration(): return True
-               
+
         self.endAllow()
         return True
-    
+
     def day6Check(self) -> bool:
         nextRet, done = self.getAllDocs()
         if nextRet: return False
@@ -2176,10 +2176,10 @@ class TAS:
         if self.handleEntryPermit():     return True
         if self.handleWorkPass():        return True
         if self.handlePurposeDuration(): return True
-        
+
         self.endAllow()
         return True
-    
+
     def day8Check(self) -> bool:
         nextRet, done = self.getAllDocs()
         if nextRet: return False
@@ -2191,10 +2191,10 @@ class TAS:
         if self.handleEntryPermit():     return True
         if self.handleWorkPass():        return True
         if self.handlePurposeDuration(): return True
-        
+
         self.endAllow()
         return True
-    
+
     def day13Check(self) -> bool:
         nextRet, done = self.getAllDocs()
         if nextRet: return False
@@ -2210,28 +2210,28 @@ class TAS:
 
         self.endAllow()
         return True
-    
+
     def day18Check(self) -> bool:
         nextRet, done = self.getAllDocs()
         if nextRet: return False
         if done:    return True
-        
+
         if self.handleArstotzkanIdWithReason():        return True
         if self.handleDiplomaticAuthWithReason():      return True
-        if self.handleEntryPermitWithReason():         return True 
+        if self.handleEntryPermitWithReason():         return True
         if self.handleWorkPassWithReason(EntryPermit): return True
         if self.handleIdSupplWithReason():             return True
-        if self.handlePurposeDurationWithReason(EntryPermit, centerOf): 
+        if self.handlePurposeDurationWithReason(EntryPermit, centerOf):
             return True
-        
+
         self.endAllow()
         return True
-    
+
     def day21Check(self) -> bool:
         nextRet, done = self.getAllDocs()
         if nextRet: return False
         if done:    return True
-        
+
         if self.handleArstotzkanIdWithReason():   return True
         if self.handleDiplomaticAuthWithReason(): return True
 
@@ -2242,12 +2242,12 @@ class TAS:
             if self.handleEntryPermitWithReason():         return True
             if self.handleWorkPassWithReason(EntryPermit): return True
             if self.handleIdSupplWithReason():             return True
-            if self.handlePurposeDurationWithReason(EntryPermit, centerOf): 
+            if self.handlePurposeDurationWithReason(EntryPermit, centerOf):
                 return True
-        
+
         self.endAllow()
         return True
-    
+
     def day26Check(self, *, nextCheck: bool = True) -> bool:
         nextRet, done = self.getAllDocs(nextCheck = nextCheck)
         if nextRet: return False
@@ -2264,9 +2264,9 @@ class TAS:
             if self.handleEntryPermitWithReason():         return True
             if self.handleWorkPassWithReason(EntryPermit): return True
             if self.handleIdSupplWithReason():             return True
-            if self.handlePurposeDurationWithReason(EntryPermit, centerOf): 
+            if self.handlePurposeDurationWithReason(EntryPermit, centerOf):
                 return True
-        
+
         self.endAllow()
         return True
 
@@ -2288,10 +2288,10 @@ class TAS:
             if self.handlePurposeDurationWithReason(
                 AccessPermit, lambda box: textFieldOffset(box[:2])
             ): return True
-        
+
         self.endAllow()
         return True
-    
+
     # special encounters and utilities
     def prepareItem(self, pos: tuple[int, int]) -> None:
         self.moveTo(pos)
@@ -2303,12 +2303,12 @@ class TAS:
         self.moveTo(PAPER_POS)
         self.dragTo(PAPER_SCAN_POS)
         self.click(EZIC_MESSAGE_OPEN)
-        self.dragTo(PERSON_POS) 
+        self.dragTo(PERSON_POS)
 
     def knownCriminal(self, checkFn: Callable) -> None:
-        # if we do have the wanted check, we have to see which one of 
+        # if we do have the wanted check, we have to see which one of
         # the criminals the first person is so we can remove them from the list
-        if TAS.WANTED_CHECK: checkFn() 
+        if TAS.WANTED_CHECK: checkFn()
         else:                self.multiDocAction(self.date >= TAS.DAY_18)
 
     def noPictureCheck(self, func: Callable) -> None:
