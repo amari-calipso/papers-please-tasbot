@@ -1,3 +1,3 @@
-ianthe
+git+https://github.com/amari-calipso/ianthe
 Cython
 setuptools
